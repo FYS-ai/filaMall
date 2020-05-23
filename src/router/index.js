@@ -4,6 +4,7 @@ const Home = () => import('../views/home/Home.vue')
 const Category = () => import('../views/category/Category.vue')
 const Cart = () => import('../views/cart/Cart.vue')
 const Profile = () => import('../views/profile/Profile.vue')
+const Detail = () => import('../views/detail/Detail.vue')
 Vue.use(VueRouter)
 const routes = [
   {
@@ -12,24 +13,47 @@ const routes = [
   },
   {
     path:'/home',
-    component:Home
+    component:Home,
+    meta:{
+      title:'首页'
+    }
   },
   {
     path:'/category',
-    component:Category
+    component:Category,
+    meta:{
+      title:'分类'
+    }
   },
   {
     path:'/cart',
-    component:Cart
+    component:Cart,
+    meta:{
+      title:'购物车'
+    }
   },
   {
     path:'/profile',
-    component:Profile
+    component:Profile,
+    meta:{
+      title:'我的'
+    }
+  }, 
+  {
+    path:'/detail/:iid',
+    component:Detail,
+    meta:{
+      title:'商品详情'
+    }
   }
 ]
 const router = new VueRouter({
   routes,
   mode:'history'
+})
+router.beforeEach((to, from, next) => {
+	document.title = to.matched[0].meta.title
+	next()//必须调用
 })
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {

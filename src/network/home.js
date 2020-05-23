@@ -12,6 +12,5 @@ export function getGoods(type,page){
       type,
       page
     }
-    
   })
 }

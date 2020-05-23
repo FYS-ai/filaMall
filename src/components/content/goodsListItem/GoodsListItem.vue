@@ -1,11 +1,11 @@
 <template>
-  <div class="goods-list">
-    <img :src="goodsList.show.img" alt="">
-    <div class="goods-list-item">
-      <p class="title">{{goodsList.title}}</p>
-      <span class="price">{{goodsList.price}}</span>
-      <span class="cfav">{{goodsList.cfav}}</span>
-    </div>
+  <div class="goods-list" @click="linkTo">
+      <img :src="goodsList.show.img" alt="" @load="imgLoad">
+      <div class="goods-list-item">
+        <p class="title">{{goodsList.title}}</p>
+        <span class="price">{{goodsList.price}}</span>
+        <span class="cfav">{{goodsList.cfav}}</span>
+      </div>
   </div>
 </template>
 <script>
@@ -19,7 +19,16 @@ export default {
     goodsList:{
       type:Object
     }
-  }
+  },
+  methods: {
+    imgLoad(){
+      this.$bus.$emit('HomeImgLoad')
+    },
+    linkTo(){
+      // console.log(this.goodsList.iid)
+      this.$router.push('/detail/' + this.goodsList.iid)
+    }
+  },
 }
 </script>
 <style scoped>

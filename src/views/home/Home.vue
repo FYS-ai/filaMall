@@ -4,17 +4,24 @@
     <NavBar class="nav-home">
       <div slot="center">购物街</div>
     </NavBar>
+    <tab-control ref="tcontrol1" 
+      :class="istabcontorl ? 'tct':''"
+      v-show="istabcontorl"
+      :contorl="contorl" @typeClick="typeClick"></tab-control> 
     <scroll class="beScroll" ref="scroll" 
       :probeType="3"  @scroll="backScroll"
       :PUL="true"
       @pullingUp="pullGoodsData">
       <!--展示轮播图-->
-      <home-swiper :bannerList="bannerList"></home-swiper>
+      <home-swiper :bannerList="bannerList"
+       @hImgLoad="hImgLoad"></home-swiper>
       <home-recommend :recommendList="recommendList"></home-recommend>
       <!-- 展示本周流行 -->
       <home-rage></home-rage>
-      <tab-control class="h-tab-control"
-      :contorl="contorl" @typeClick="typeClick"></tab-control> 
+      <tab-control ref="tcontrol2"
+      :contorl="contorl"
+      :class="istabcontorl ? 'tct':''"
+      @typeClick="typeClick"></tab-control> 
       <!-- 展示商品 -->
       <goods-list :goods="goods[pageType].list"/>
     </scroll>
@@ -45,7 +52,9 @@ export default {
         'sell': { page: 0, list: [] }
       },
       pageType:'pop',
-      isShow:false
+      isShow:false,
+      TabControlTop:100,
+      istabcontorl:false,
     };
   },
   components: {
@@ -64,7 +73,15 @@ export default {
     //-----------获取商品数据
     this._getGoods('pop')
     this._getGoods('new')
-    this._getGoods('sell')
+    this._getGoods('sell') 
+  },
+  mounted() {
+    //1、监听图片加载完成
+    let refresh = this.debounce(this.$refs.scroll.refresh, 200)
+     //事件总线监听每一张图片加载完成
+    this.$bus.$on('HomeImgLoad',() => {
+      refresh()
+    })
   },
   methods: {
     // ------------------事件监听
@@ -81,6 +98,8 @@ export default {
         case 2:
           this.pageType = 'sell'
       }
+      this.$refs.tcontrol1.controlNum = e;
+      this.$refs.tcontrol2.controlNum = e;
     },
     //---------------返回顶部
     backClik(){
@@ -89,12 +108,27 @@ export default {
     //-------------------隐藏和显示返回顶部的图标
     backScroll(options){
       this.isShow = (-options.y) > 1000
+      this.istabcontorl = (-options.y) > this.TabControlTop
     },
     //-----------------------上拉加载更多
     pullGoodsData(){
       this._getGoods(this.pageType)
     },
-
+    //------------防抖
+    debounce(fun,delay){
+      let time = null
+      return function(...args){
+         if(time) clearTimeout(time)
+        time = setTimeout(()=>{
+          fun.apply(this, args)
+        },delay)
+      }
+    },
+    //----监听轮播图是否加载完成
+    hImgLoad(){
+       // 1、监听tabContort与顶部的距离
+       this.TabControlTop = this.$refs.tcontrol2.$el.offsetTop
+    },
     //-------------------- 网络请求
     //--------------------轮播图
     _getRotationChart(){
@@ -114,7 +148,6 @@ export default {
         // console.log(this.goods[type].list);
       });
     }
-
   }
 };
 </script>
@@ -132,10 +165,6 @@ export default {
   right: 0;
   z-index:9;
 }
-/* .h-tab-control {
-  position: sticky;
-  top: 0; 
-} */
 .beScroll{
   position: absolute;
   background-color: #fff;
@@ -143,5 +172,12 @@ export default {
   bottom: 54px;
   left: 0;
   right: 0;
+}
+.tct{
+  position: fixed;
+  top:44px;
+  left:0;
+  right: 0;
+  z-index:9;
 }
 </style>

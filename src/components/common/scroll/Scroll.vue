@@ -42,17 +42,19 @@ export default {
     this.scroll.on('pullingUp',()=>{
       this.$emit('pullingUp')
     })
-    
   },
   methods: {
     comScroll(x,y,time=300){
-     this.scroll.scrollTo(x,y,time)
+     this.scroll && this.scroll.scrollTo(x,y,time)
     },
     //解决上拉加载更多只执行一次
     finish(){
-      this.scroll.finishPullUp()
+      this.scroll && this.scroll.finishPullUp()
+    },
+    refresh(){
+      this.scroll && this.scroll.refresh()
     }
-
+      
   },
 }
 </script>
